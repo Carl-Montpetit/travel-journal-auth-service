@@ -3,7 +3,7 @@ package com.traveljournal.authservice.service;
 import com.traveljournal.authservice.model.User;
 import com.traveljournal.authservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,31 +15,29 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
-    public User registerUser(String username, String password) {
-        // Check if the user already exists
-        if (userRepository.findByUsername(username).isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
-
-        // Create new user and save to database
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        return userRepository.save(user);
+    // Find user by username
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
-    public Optional<User> authenticateUser(String username, String password) {
-        // Fetch user by username
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            // Validate password
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                return Optional.of(user);
-            }
-        }
-        return Optional.empty();
+    // Method to check if a user exists by username
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    // Authenticate the user by username and password
+    public Optional<User> authenticateUser(String username, String rawPassword) {
+        return userRepository.findByUsername(username)
+                .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
     }
 }
