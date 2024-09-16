@@ -1,5 +1,6 @@
 package com.traveljournal.authservice.controller;
 
+import com.traveljournal.authservice.dto.ResetPasswordDto;
 import com.traveljournal.authservice.model.User;
 import com.traveljournal.authservice.dto.LoginUserDto;
 import com.traveljournal.authservice.dto.UpdateUserDto;
@@ -100,9 +101,9 @@ public class AuthController {
 
     // 5. Reset user password
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String newPassword = request.get("newPassword");
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+        String username = resetPasswordDto.getUsername();
+        String newPassword = resetPasswordDto.getPassword();
 
         Optional<User> user = authService.findUserByUsername(username);
         if (user.isPresent()) {
